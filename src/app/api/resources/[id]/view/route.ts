@@ -1,0 +1,27 @@
+import { eq, sql } from "drizzle-orm";
+import { NextResponse } from "next/server";
+import { db } from "@/db";
+import { resources } from "@/db/schema";
+
+export async function POST(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const resourceId = Number(id);
+    if (!Number.isFinite(resourceId)) {
+      return NextResponse.json({ error: "bad id" }, { status: 400 });
+    }
+    const [row] = await db
+      .update(resources)
+      .set({ views: sql`${resources.views} + 1` })
+      .where(eq(resources.id, resourceId))
+      .returning({ views: resources.views });
+    if (!row) return NextResponse.json({ error: "not found" }, { status: 404 });
+    return NextResponse.json(row);
+  } catch (error) {
+    console.error("[view] error", error);
+    return NextResponse.json({ error: "failed" }, { status: 500 });
+  }
+}
