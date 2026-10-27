@@ -106,28 +106,49 @@ export function Hero({ meta }: { meta: MetaDTO }) {
 
             <Reveal delay={0.32}>
               <div className="mt-6 flex flex-wrap items-center gap-2">
-                {RESOURCE_TYPES.map((ty) => {
-                  const Icon = TYPE_META[ty].icon;
-                  return (
-                    <button
-                      key={ty}
-                      type="button"
-                      onClick={() => router.push(`/bibliotheque?type=${ty}`)}
-                      className="group flex items-center gap-1.5 rounded-full border border-line bg-panel px-3.5 py-1.5 text-xs font-semibold text-soft transition-all hover:-translate-y-0.5 hover:border-transparent hover:text-white"
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.background = TYPE_META[ty].gradient;
-                        e.currentTarget.style.color = "#fff";
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.background = "";
-                        e.currentTarget.style.color = "";
-                      }}
-                    >
-                      <Icon className="h-3.5 w-3.5" />
-                      {t(`type.${ty}`)}
-                    </button>
-                  );
-                })}
+                <span className="text-xs font-bold uppercase tracking-wider text-soft mr-1">
+                  Cycles :
+                </span>
+                <button
+                  type="button"
+                  onClick={() => router.push("/bibliotheque?cycle=primaire")}
+                  className="rounded-full bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1 text-xs font-bold text-emerald-700 dark:text-emerald-300 hover:bg-emerald-500 hover:text-white transition-colors"
+                >
+                  Primaire (1AP-5AP)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/bibliotheque?cycle=moyen")}
+                  className="rounded-full bg-sky-500/10 border border-sky-500/30 px-3.5 py-1 text-xs font-bold text-sky-700 dark:text-sky-300 hover:bg-sky-500 hover:text-white transition-colors"
+                >
+                  Moyen / CEM (1AM-4AM BEM)
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/bibliotheque?cycle=lycee")}
+                  className="rounded-full bg-indigo-500/10 border border-indigo-500/30 px-3.5 py-1 text-xs font-bold text-indigo-700 dark:text-indigo-300 hover:bg-indigo-500 hover:text-white transition-colors"
+                >
+                  Lycée (1AS-3AS BAC)
+                </button>
+              </div>
+
+              <div className="mt-3 flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => router.push("/exercices-en-ligne")}
+                  className="flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3.5 py-1.5 text-xs font-bold text-accent transition-all hover:bg-accent hover:text-accent-ink"
+                >
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Exercices Corrigés en Ligne
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push("/cours-en-ligne")}
+                  className="flex items-center gap-1.5 rounded-full border border-teal/30 bg-teal/10 px-3.5 py-1.5 text-xs font-bold text-teal transition-all hover:bg-teal hover:text-white"
+                >
+                  <GraduationCap className="h-3.5 w-3.5" />
+                  Cours en Direct & Formateurs
+                </button>
               </div>
             </Reveal>
           </div>

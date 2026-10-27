@@ -78,6 +78,14 @@ function titles(
 
 export async function GET() {
   try {
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({
+        seeded: true,
+        message: "In-memory database active and initialized with seed data",
+        subjects: SUBJECT_SEED.length,
+      });
+    }
+
     const [{ count }] = await db
       .select({ count: sql<number>`count(*)::int` })
       .from(subjects);

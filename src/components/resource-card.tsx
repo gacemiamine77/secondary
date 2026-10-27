@@ -137,7 +137,7 @@ export function ResourceCard({
             {subjectName(resource, locale)}
           </span>
           <span className="text-[11px] font-semibold text-soft">
-            {t(`level.short.${resource.level}`)} · {t(`trimester.short.${resource.trimester}`)} · {fmt(resource.year)}
+            {resource.gradeCode || (resource.level ? t(`level.short.${resource.level}`) : "")} · {t(`trimester.short.${resource.trimester}`)} · {fmt(resource.year)}
           </span>
         </div>
 

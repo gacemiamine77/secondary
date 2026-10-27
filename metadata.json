@@ -1,0 +1,5 @@
+{
+  "name": "Massar - Plateforme Éducative Primaire, Moyen & Lycée",
+  "description": "Plateforme éducative pour les élèves du Primaire, Moyen et Lycée : cours, exercices corrigés en ligne, cours en visioconférence avec formateurs et abonnements.",
+  "capabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -23,6 +23,8 @@ export default async function LibraryPage({
     q: str("q"),
     type: str("type"),
     subject: str("subject"),
+    cycle: str("cycle") || undefined,
+    gradeCode: str("gradeCode") || undefined,
     level: Number(str("level")) || 0,
     trimester: Number(str("trimester")) || 0,
     year: Number(str("year")) || 0,

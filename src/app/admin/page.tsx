@@ -19,18 +19,32 @@ export default async function AdminPage() {
     return <AdminLogin />;
   }
 
-  const subjectRows: AdminSubject[] = await db
-    .select({
-      id: subjects.id,
-      slug: subjects.slug,
-      nameFr: subjects.nameFr,
-      nameAr: subjects.nameAr,
-      nameEn: subjects.nameEn,
-      color: subjects.color,
-    })
-    .from(subjects)
-    .orderBy(asc(subjects.id))
-    .catch(() => []);
+  const dbSubjects: AdminSubject[] = process.env.DATABASE_URL
+    ? await db
+        .select({
+          id: subjects.id,
+          slug: subjects.slug,
+          nameFr: subjects.nameFr,
+          nameAr: subjects.nameAr,
+          nameEn: subjects.nameEn,
+          color: subjects.color,
+        })
+        .from(subjects)
+        .orderBy(asc(subjects.id))
+        .catch(() => [])
+    : [];
+
+  const subjectRows =
+    dbSubjects.length > 0
+      ? dbSubjects
+      : (await import("@/lib/in-memory-db")).getInMemorySubjects().map((s) => ({
+          id: s.id,
+          slug: s.slug,
+          nameFr: s.nameFr,
+          nameAr: s.nameAr,
+          nameEn: s.nameEn,
+          color: s.color,
+        }));
 
   return <AdminDashboard subjects={subjectRows} />;
 }

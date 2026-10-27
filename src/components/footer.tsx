@@ -11,19 +11,20 @@ export function Footer() {
   const year = new Date().getFullYear();
 
   const exploreLinks = [
-    { href: "/", key: "nav.home" },
-    { href: "/bibliotheque", key: "nav.library" },
-    { href: "/#matieres", key: "nav.subjects" },
-    { href: "/#videos", key: "nav.videos" },
-    { href: "/admin", key: "admin.link" },
+    { href: "/", label: "Accueil" },
+    { href: "/bibliotheque", label: "Bibliothèque complète" },
+    { href: "/exercices-en-ligne", label: "Exercices Corrigés en Ligne" },
+    { href: "/cours-en-ligne", label: "Cours en Direct & Formateurs" },
+    { href: "/tarifs", label: "Formules d'Abonnement" },
+    { href: "/admin", label: "Administration" },
   ];
 
-  const resourceLinks = [
-    { href: "/bibliotheque?type=course", key: "type.course" },
-    { href: "/bibliotheque?type=exercise", key: "type.exercise" },
-    { href: "/bibliotheque?type=devoir", key: "type.devoir" },
-    { href: "/bibliotheque?type=exam", key: "type.exam" },
-    { href: "/bibliotheque?type=video", key: "type.video" },
+  const cycleLinks = [
+    { href: "/bibliotheque?cycle=primaire", label: "Cycle Primaire (1AP - 5AP)" },
+    { href: "/bibliotheque?cycle=moyen", label: "Cycle Moyen / CEM (1AM - 4AM BEM)" },
+    { href: "/bibliotheque?cycle=lycee", label: "Cycle Secondaire / Lycée (BAC)" },
+    { href: "/bibliotheque?type=course", label: "Tous les Cours PDF" },
+    { href: "/bibliotheque?type=exam", label: "Sujets d'Examens Officiels" },
   ];
 
   return (
@@ -52,12 +53,12 @@ export function Footer() {
             </h4>
             <ul className="mt-4 space-y-2.5">
               {exploreLinks.map((l) => (
-                <li key={l.key}>
+                <li key={l.href}>
                   <Link
                     href={l.href}
                     className="text-sm font-medium text-ink/80 transition-colors hover:text-accent"
                   >
-                    {t(l.key)}
+                    {l.label}
                   </Link>
                 </li>
               ))}
@@ -66,16 +67,16 @@ export function Footer() {
 
           <div className="lg:col-span-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-soft">
-              {t("footer.resources")}
+              Cycles & Ressources
             </h4>
             <ul className="mt-4 space-y-2.5">
-              {resourceLinks.map((l) => (
-                <li key={l.key}>
+              {cycleLinks.map((l) => (
+                <li key={l.href}>
                   <Link
                     href={l.href}
                     className="text-sm font-medium text-ink/80 transition-colors hover:text-accent"
                   >
-                    {t(l.key)}
+                    {l.label}
                   </Link>
                 </li>
               ))}

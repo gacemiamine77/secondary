@@ -17,15 +17,24 @@ export type Dictionary = Record<string, string>;
 export const dictionaries: Record<Locale, Dictionary> = {
   fr: {
     "brand.name": "Massar",
-    "brand.tagline": "La plateforme du lycéen algérien",
+    "brand.tagline": "Plateforme éducative : Primaire, Moyen & Lycée",
 
     "nav.home": "Accueil",
     "nav.library": "Bibliothèque",
+    "nav.exercises": "Exercices Corrigés",
+    "nav.courses": "Cours en Direct",
+    "nav.pricing": "Abonnements",
     "nav.subjects": "Matières",
     "nav.videos": "Vidéos",
     "nav.how": "Comment ça marche",
     "nav.openMenu": "Ouvrir le menu",
     "nav.closeMenu": "Fermer le menu",
+
+    "cycle.label": "Cycle d'études",
+    "cycle.all": "Tous les cycles",
+    "cycle.primaire": "Primaire (1AP - 5AP)",
+    "cycle.moyen": "Moyen / CEM (1AM - 4AM)",
+    "cycle.lycee": "Lycée (1AS - 3AS BAC)",
 
     "common.search": "Rechercher",
     "common.download": "Télécharger",
@@ -222,15 +231,24 @@ export const dictionaries: Record<Locale, Dictionary> = {
 
   ar: {
     "brand.name": "مسار",
-    "brand.tagline": "منصة التلميذ الثانوي الجزائري",
+    "brand.tagline": "المنصة التعليمية الشاملة: ابتدائي، متوسط وثانوي",
 
     "nav.home": "الرئيسية",
     "nav.library": "المكتبة",
+    "nav.exercises": "تمارين مصححة",
+    "nav.courses": "حصص مباشرة",
+    "nav.pricing": "الاشتراكات",
     "nav.subjects": "المواد",
     "nav.videos": "الفيديوهات",
     "nav.how": "كيف يعمل الموقع",
     "nav.openMenu": "فتح القائمة",
     "nav.closeMenu": "إغلاق القائمة",
+
+    "cycle.label": "الطور الدراسي",
+    "cycle.all": "كل الأطوار",
+    "cycle.primaire": "الابتدائي (1 إلى 5)",
+    "cycle.moyen": "المتوسط / CEM (1 إلى 4)",
+    "cycle.lycee": "الثانوي (1 إلى 3 باك)",
 
     "common.search": "بحث",
     "common.download": "تحميل",
@@ -426,15 +444,24 @@ export const dictionaries: Record<Locale, Dictionary> = {
 
   en: {
     "brand.name": "Massar",
-    "brand.tagline": "The Algerian high-school platform",
+    "brand.tagline": "Educational platform: Primary, Middle & High School",
 
     "nav.home": "Home",
     "nav.library": "Library",
+    "nav.exercises": "Online Exercises",
+    "nav.courses": "Live Classes",
+    "nav.pricing": "Subscriptions",
     "nav.subjects": "Subjects",
     "nav.videos": "Videos",
     "nav.how": "How it works",
     "nav.openMenu": "Open menu",
     "nav.closeMenu": "Close menu",
+
+    "cycle.label": "School Cycle",
+    "cycle.all": "All cycles",
+    "cycle.primaire": "Primary (Grades 1-5)",
+    "cycle.moyen": "Middle School (Grades 6-9)",
+    "cycle.lycee": "High School (BAC Prep)",
 
     "common.search": "Search",
     "common.download": "Download",

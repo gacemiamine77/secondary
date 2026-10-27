@@ -4,9 +4,9 @@ import { Providers } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Massar — Cours, Devoirs & Examens du Lycée",
+  title: "Massar — Plateforme Éducative Primaire, Moyen & Lycée",
   description:
-    "Plateforme éducative gratuite pour les lycéens : cours, exercices corrigés, devoirs maison et surveillés, sujets d'examens et vidéos explicatives, indexés par matière, niveau et trimestre. Disponible en français, arabe et anglais.",
+    "Plateforme éducative pour les élèves du Primaire, Moyen et Lycée : cours, exercices corrigés en ligne, cours en direct avec formateurs certifiés et formules d'abonnement.",
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {

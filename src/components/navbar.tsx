@@ -12,9 +12,9 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const LINKS = [
   { href: "/", key: "nav.home" },
   { href: "/bibliotheque", key: "nav.library" },
-  { href: "/#matieres", key: "nav.subjects" },
-  { href: "/#videos", key: "nav.videos" },
-  { href: "/#guide", key: "nav.how" },
+  { href: "/exercices-en-ligne", key: "nav.exercises", badge: "En ligne" },
+  { href: "/cours-en-ligne", key: "nav.courses", badge: "Direct" },
+  { href: "/tarifs", key: "nav.pricing" },
 ];
 
 export function Navbar() {
@@ -66,23 +66,26 @@ export function Navbar() {
               const isActive =
                 link.href === "/"
                   ? pathname === "/"
-                  : link.href === "/bibliotheque"
-                    ? pathname.startsWith("/bibliotheque")
-                    : false;
+                  : pathname.startsWith(link.href);
               return (
-                <Link
-                  key={link.key}
-                  href={link.href}
-                  className={`rounded-full px-4 py-2 text-sm font-medium transition-colors ${
-                    isActive
-                      ? "bg-accent/10 text-accent"
-                      : "text-soft hover:bg-panel-2 hover:text-ink"
-                  }`}
-                >
-                  {t(link.key)}
-                </Link>
-              );
-            })}
+                  <Link
+                    key={link.key}
+                    href={link.href}
+                    className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
+                      isActive
+                        ? "bg-accent/10 text-accent font-semibold"
+                        : "text-soft hover:bg-panel-2 hover:text-ink"
+                    }`}
+                  >
+                    {t(link.key)}
+                    {link.badge && (
+                      <span className="rounded-full bg-accent/15 px-1.5 py-0.2 text-[10px] font-bold text-accent">
+                        {link.badge}
+                      </span>
+                    )}
+                  </Link>
+                );
+              })}
           </nav>
 
           <div className="flex items-center gap-2">

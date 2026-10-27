@@ -36,6 +36,8 @@ export type InitialFilters = {
   q: string;
   type: string;
   subject: string;
+  cycle?: string;
+  gradeCode?: string;
   level: number;
   trimester: number;
   year: number;
@@ -66,6 +68,8 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
       if (f.q.trim()) params.set("q", f.q.trim());
       if (f.type) params.set("type", f.type);
       if (f.subject) params.set("subject", f.subject);
+      if (f.cycle) params.set("cycle", f.cycle);
+      if (f.gradeCode) params.set("gradeCode", f.gradeCode);
       if (f.level) params.set("level", String(f.level));
       if (f.trimester) params.set("trimester", String(f.trimester));
       if (f.year) params.set("year", String(f.year));
@@ -143,7 +147,7 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
 
   const reset = () => {
     setQInput("");
-    setFilters({ q: "", type: "", subject: "", level: 0, trimester: 0, year: 0, sort: "new" });
+    setFilters({ q: "", type: "", subject: "", cycle: "", gradeCode: "", level: 0, trimester: 0, year: 0, sort: "new" });
   };
 
   const subjectLabel = useCallback(
@@ -159,11 +163,19 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
     const chips: { key: string; label: string; clear: () => void }[] = [];
     if (filters.q.trim())
       chips.push({ key: "q", label: `"${filters.q.trim()}"`, clear: () => { setQInput(""); update("q", ""); } });
+    if (filters.cycle)
+      chips.push({
+        key: "cycle",
+        label: filters.cycle === "primaire" ? "Primaire" : filters.cycle === "moyen" ? "Moyen (CEM)" : "Lycée",
+        clear: () => { update("cycle", ""); update("gradeCode", ""); },
+      });
+    if (filters.gradeCode)
+      chips.push({ key: "gradeCode", label: filters.gradeCode, clear: () => update("gradeCode", "") });
     if (filters.type)
       chips.push({ key: "type", label: t(`type.${filters.type}`), clear: () => update("type", "") });
     if (filters.subject)
       chips.push({ key: "subject", label: subjectLabel(filters.subject), clear: () => update("subject", "") });
-    if (filters.level)
+    if (filters.level && !filters.cycle)
       chips.push({ key: "level", label: t(`level.${filters.level}`), clear: () => update("level", 0) });
     if (filters.trimester)
       chips.push({ key: "trimester", label: t(`trimester.${filters.trimester}`), clear: () => update("trimester", 0) });
@@ -252,21 +264,83 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
         </div>
       </div>
 
-      {/* Level */}
+      {/* Cycle */}
       <div>
         <p className="mb-2 text-xs font-bold uppercase tracking-widest text-soft">
-          {t("filters.level")}
+          {t("cycle.label") || "Cycle d'études"}
         </p>
         <div className="grid grid-cols-3 gap-1.5">
-          {[1, 2, 3].map((level) => (
-            <SegmentButton
-              key={level}
-              active={filters.level === level}
-              onClick={() => update("level", filters.level === level ? 0 : level)}
-              label={t(`level.short.${level}`)}
-            />
-          ))}
+          <SegmentButton
+            active={!filters.cycle}
+            onClick={() => { update("cycle", ""); update("gradeCode", ""); }}
+            label="Tous"
+          />
+          <SegmentButton
+            active={filters.cycle === "primaire"}
+            onClick={() => { update("cycle", filters.cycle === "primaire" ? "" : "primaire"); update("gradeCode", ""); }}
+            label="Primaire"
+          />
+          <SegmentButton
+            active={filters.cycle === "moyen"}
+            onClick={() => { update("cycle", filters.cycle === "moyen" ? "" : "moyen"); update("gradeCode", ""); }}
+            label="Moyen"
+          />
         </div>
+        <div className="mt-1.5">
+          <SegmentButton
+            active={filters.cycle === "lycee"}
+            onClick={() => { update("cycle", filters.cycle === "lycee" ? "" : "lycee"); update("gradeCode", ""); }}
+            label="Lycée (Secondaire)"
+          />
+        </div>
+      </div>
+
+      {/* Grade / Classe */}
+      <div>
+        <p className="mb-2 text-xs font-bold uppercase tracking-widest text-soft">
+          Classe / Niveau
+        </p>
+        {filters.cycle === "primaire" ? (
+          <div className="grid grid-cols-3 gap-1.5">
+            {["1AP", "2AP", "3AP", "4AP", "5AP"].map((code) => (
+              <SegmentButton
+                key={code}
+                active={filters.gradeCode === code}
+                onClick={() => update("gradeCode", filters.gradeCode === code ? "" : code)}
+                label={code}
+              />
+            ))}
+          </div>
+        ) : filters.cycle === "moyen" ? (
+          <div className="grid grid-cols-2 gap-1.5">
+            {["1AM", "2AM", "3AM", "4AM (BEM)"].map((code) => {
+              const cleanCode = code.startsWith("4AM") ? "4AM" : code;
+              return (
+                <SegmentButton
+                  key={code}
+                  active={filters.gradeCode === cleanCode}
+                  onClick={() => update("gradeCode", filters.gradeCode === cleanCode ? "" : cleanCode)}
+                  label={code}
+                />
+              );
+            })}
+          </div>
+        ) : (
+          <div className="grid grid-cols-3 gap-1.5">
+            {["1AS", "2AS", "3AS"].map((code, idx) => (
+              <SegmentButton
+                key={code}
+                active={filters.gradeCode === code || (!filters.gradeCode && filters.level === idx + 1)}
+                onClick={() => {
+                  const isActive = filters.gradeCode === code;
+                  update("gradeCode", isActive ? "" : code);
+                  update("level", isActive ? 0 : idx + 1);
+                }}
+                label={code === "3AS" ? "3AS · BAC" : code}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* Trimester */}
@@ -355,6 +429,54 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
               <span className="text-gradient">{t("library.title")}</span>
             </h1>
             <p className="mt-3 max-w-2xl text-base text-soft">{t("library.subtitle")}</p>
+
+            {/* Quick Cycle Tabs */}
+            <div className="mt-6 flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                onClick={() => { update("cycle", ""); update("gradeCode", ""); }}
+                className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                  !filters.cycle
+                    ? "bg-ink text-paper shadow-md"
+                    : "bg-panel/80 border border-line text-soft hover:text-ink backdrop-blur"
+                }`}
+              >
+                Tous les cycles
+              </button>
+              <button
+                type="button"
+                onClick={() => { update("cycle", "primaire"); update("gradeCode", ""); }}
+                className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                  filters.cycle === "primaire"
+                    ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/25"
+                    : "bg-panel/80 border border-line text-soft hover:text-ink backdrop-blur"
+                }`}
+              >
+                Primaire (1AP - 5AP)
+              </button>
+              <button
+                type="button"
+                onClick={() => { update("cycle", "moyen"); update("gradeCode", ""); }}
+                className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                  filters.cycle === "moyen"
+                    ? "bg-sky-600 text-white shadow-md shadow-sky-600/25"
+                    : "bg-panel/80 border border-line text-soft hover:text-ink backdrop-blur"
+                }`}
+              >
+                Moyen / CEM (1AM - 4AM BEM)
+              </button>
+              <button
+                type="button"
+                onClick={() => { update("cycle", "lycee"); update("gradeCode", ""); }}
+                className={`rounded-full px-4 py-2 text-xs font-bold transition-all ${
+                  filters.cycle === "lycee"
+                    ? "bg-indigo-600 text-white shadow-md shadow-indigo-600/25"
+                    : "bg-panel/80 border border-line text-soft hover:text-ink backdrop-blur"
+                }`}
+              >
+                Lycée (1AS - 3AS BAC)
+              </button>
+            </div>
           </Reveal>
         </div>
       </section>

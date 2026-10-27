@@ -6,6 +6,11 @@ import { PDFDocument } from "pdf-lib";
 import { db } from "@/db";
 import { resources, subjects } from "@/db/schema";
 import { isAdmin } from "@/lib/admin-auth";
+import {
+  addInMemoryResource,
+  getInMemorySubjects,
+  getStore,
+} from "@/lib/in-memory-db";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +28,20 @@ function str(value: unknown): string {
 }
 
 async function validSubject(subjectId: number) {
-  const [subject] = await db
-    .select()
-    .from(subjects)
-    .where(eq(subjects.id, subjectId))
-    .limit(1);
-  return subject ?? null;
+  if (process.env.DATABASE_URL) {
+    try {
+      const [subject] = await db
+        .select()
+        .from(subjects)
+        .where(eq(subjects.id, subjectId))
+        .limit(1);
+      if (subject) return subject;
+    } catch {
+      // Fallback below
+    }
+  }
+  const match = getInMemorySubjects().find((s) => s.id === subjectId);
+  return match ?? null;
 }
 
 /** GET /api/admin/resources — last 100 documents (admin only). */
@@ -36,27 +49,55 @@ export async function GET() {
   if (!(await isAdmin())) {
     return NextResponse.json({ error: "unauthorized" }, { status: 401 });
   }
-  const rows = await db
-    .select({
-      id: resources.id,
-      titleFr: resources.titleFr,
-      type: resources.type,
-      subjectSlug: subjects.slug,
-      subjectNameFr: subjects.nameFr,
-      subjectColor: subjects.color,
-      level: resources.level,
-      trimester: resources.trimester,
-      year: resources.year,
-      fileUrl: resources.fileUrl,
-      videoUrl: resources.videoUrl,
-      views: resources.views,
-      downloads: resources.downloads,
-      createdAt: resources.createdAt,
-    })
-    .from(resources)
-    .innerJoin(subjects, eq(resources.subjectId, subjects.id))
-    .orderBy(desc(resources.id))
-    .limit(100);
+
+  if (process.env.DATABASE_URL) {
+    try {
+      const rows = await db
+        .select({
+          id: resources.id,
+          titleFr: resources.titleFr,
+          type: resources.type,
+          subjectSlug: subjects.slug,
+          subjectNameFr: subjects.nameFr,
+          subjectColor: subjects.color,
+          level: resources.level,
+          trimester: resources.trimester,
+          year: resources.year,
+          fileUrl: resources.fileUrl,
+          videoUrl: resources.videoUrl,
+          views: resources.views,
+          downloads: resources.downloads,
+          createdAt: resources.createdAt,
+        })
+        .from(resources)
+        .innerJoin(subjects, eq(resources.subjectId, subjects.id))
+        .orderBy(desc(resources.id))
+        .limit(100);
+      if (rows && rows.length > 0) {
+        return NextResponse.json({ items: rows });
+      }
+    } catch {
+      // Fallback to in-memory store
+    }
+  }
+
+  const rows = getStore().resources.slice(0, 100).map((r) => ({
+    id: r.id,
+    titleFr: r.titleFr,
+    type: r.type,
+    subjectSlug: r.subjectSlug,
+    subjectNameFr: r.subjectNameFr,
+    subjectColor: r.subjectColor,
+    level: r.level,
+    trimester: r.trimester,
+    year: r.year,
+    fileUrl: r.fileUrl,
+    videoUrl: r.videoUrl,
+    views: r.views,
+    downloads: r.downloads,
+    createdAt: r.createdAt,
+  }));
+
   return NextResponse.json({ items: rows });
 }
 
@@ -94,27 +135,59 @@ export async function POST(request: Request) {
       }
       const thumbnailUrl = str(body.thumbnailUrl) || null;
 
-      const [created] = await db
-        .insert(resources)
-        .values({
-          titleFr,
-          titleAr: str(body.titleAr) || titleFr,
-          titleEn: str(body.titleEn) || titleFr,
-          type: "video",
-          subjectId,
-          level,
-          trimester,
-          year,
-          videoUrl,
-          thumbnailUrl,
-          durationMin,
-          pages: 0,
-          sizeMb: "—",
-          teacherName: str(body.teacherName) || null,
-          featured: body.featured === true,
-        })
-        .returning({ id: resources.id });
-      return NextResponse.json({ ok: true, id: created.id });
+      if (process.env.DATABASE_URL) {
+        try {
+          const [created] = await db
+            .insert(resources)
+            .values({
+              titleFr,
+              titleAr: str(body.titleAr) || titleFr,
+              titleEn: str(body.titleEn) || titleFr,
+              type: "video",
+              subjectId,
+              level,
+              trimester,
+              year,
+              videoUrl,
+              thumbnailUrl,
+              durationMin,
+              pages: 0,
+              sizeMb: "—",
+              teacherName: str(body.teacherName) || null,
+              featured: body.featured === true,
+            })
+            .returning({ id: resources.id });
+          if (created) return NextResponse.json({ ok: true, id: created.id });
+        } catch {
+          // Fallback to in-memory
+        }
+      }
+
+      const mem = addInMemoryResource({
+        titleFr,
+        titleAr: str(body.titleAr) || titleFr,
+        titleEn: str(body.titleEn) || titleFr,
+        type: "video",
+        subjectId,
+        subjectSlug: subject.slug,
+        subjectNameFr: subject.nameFr,
+        subjectNameAr: subject.nameAr,
+        subjectNameEn: subject.nameEn,
+        subjectColor: subject.color,
+        level,
+        trimester,
+        year,
+        fileUrl: null,
+        videoUrl,
+        thumbnailUrl,
+        durationMin,
+        pages: 0,
+        sizeMb: "—",
+        teacherName: str(body.teacherName) || null,
+        featured: body.featured === true,
+      });
+
+      return NextResponse.json({ ok: true, id: mem.id });
     }
 
     // ---------- PDF document (multipart/form-data) ----------
@@ -160,26 +233,60 @@ export async function POST(request: Request) {
     const baseName = `${subject.slug}-${Date.now().toString(36)}.pdf`;
     await writeFile(path.join(filesDir, baseName), bytes);
 
-    const [created] = await db
-      .insert(resources)
-      .values({
-        titleFr,
-        titleAr: str(form.get("titleAr")) || titleFr,
-        titleEn: str(form.get("titleEn")) || titleFr,
-        type,
-        subjectId,
-        level,
-        trimester,
-        year,
-        fileUrl: `/api/files/${baseName}`,
-        pages: pageCount,
-        sizeMb: `${(bytes.length / 1024 / 1024).toFixed(1)} Mo`,
-        teacherName: str(form.get("teacherName")) || null,
-        featured: form.get("featured") === "true",
-      })
-      .returning({ id: resources.id });
+    if (process.env.DATABASE_URL) {
+      try {
+        const [created] = await db
+          .insert(resources)
+          .values({
+            titleFr,
+            titleAr: str(form.get("titleAr")) || titleFr,
+            titleEn: str(form.get("titleEn")) || titleFr,
+            type,
+            subjectId,
+            level,
+            trimester,
+            year,
+            fileUrl: `/api/files/${baseName}`,
+            pages: pageCount,
+            sizeMb: `${(bytes.length / 1024 / 1024).toFixed(1)} Mo`,
+            teacherName: str(form.get("teacherName")) || null,
+            featured: form.get("featured") === "true",
+          })
+          .returning({ id: resources.id });
 
-    return NextResponse.json({ ok: true, id: created.id, pages: pageCount });
+        if (created) {
+          return NextResponse.json({ ok: true, id: created.id, pages: pageCount });
+        }
+      } catch {
+        // Fallback to in-memory
+      }
+    }
+
+    const mem = addInMemoryResource({
+      titleFr,
+      titleAr: str(form.get("titleAr")) || titleFr,
+      titleEn: str(form.get("titleEn")) || titleFr,
+      type,
+      subjectId,
+      subjectSlug: subject.slug,
+      subjectNameFr: subject.nameFr,
+      subjectNameAr: subject.nameAr,
+      subjectNameEn: subject.nameEn,
+      subjectColor: subject.color,
+      level,
+      trimester,
+      year,
+      fileUrl: `/api/files/${baseName}`,
+      videoUrl: null,
+      thumbnailUrl: null,
+      durationMin: null,
+      pages: pageCount,
+      sizeMb: `${(bytes.length / 1024 / 1024).toFixed(1)} Mo`,
+      teacherName: str(form.get("teacherName")) || null,
+      featured: form.get("featured") === "true",
+    });
+
+    return NextResponse.json({ ok: true, id: mem.id, pages: pageCount });
   } catch (error) {
     console.error("[admin/resources] error", error);
     return NextResponse.json({ error: "failed" }, { status: 500 });

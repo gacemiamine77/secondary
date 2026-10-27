@@ -15,10 +15,16 @@ export async function GET(request: Request) {
     };
 
     const sortParam = searchParams.get("sort");
+    const cycleParam = searchParams.get("cycle");
+    const gradeCodeParam = searchParams.get("gradeCode");
+    const validCycle = cycleParam === "primaire" || cycleParam === "moyen" || cycleParam === "lycee" ? cycleParam : undefined;
+
     const filters: ResourceFilters = {
       q: searchParams.get("q") ?? undefined,
       type: searchParams.get("type") ?? undefined,
       subject: searchParams.get("subject") ?? undefined,
+      cycle: validCycle,
+      gradeCode: gradeCodeParam ?? undefined,
       level: num("level"),
       trimester: num("trimester"),
       year: num("year"),

@@ -16,6 +16,9 @@ import {
 } from "@/lib/queries";
 import type { ResourceDTO } from "@/lib/constants";
 
+import { CyclesSection } from "@/components/home/cycles-section";
+import { InteractiveFeaturesSection } from "@/components/home/interactive-features-section";
+
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
@@ -27,6 +30,8 @@ export default async function Home() {
     <main className="relative overflow-x-clip">
       <Navbar />
       <Hero meta={meta} />
+      <CyclesSection />
+      <InteractiveFeaturesSection />
       <SubjectsSection meta={meta} />
       <TypesSection meta={meta} />
       <TrimestersSection />
