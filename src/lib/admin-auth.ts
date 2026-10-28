@@ -2,7 +2,7 @@ import crypto from "crypto";
 import { cookies } from "next/headers";
 
 export const ADMIN_COOKIE = "massar_admin";
-export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "admin123";
+export const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD ?? "massar2025";
 
 const SESSION_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days
 

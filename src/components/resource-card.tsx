@@ -1,6 +1,6 @@
 "use client";
 
-import { Download, Eye, FileText, Play } from "lucide-react";
+import { Download, Eye, FileText, Play, Highlighter } from "lucide-react";
 import { useState } from "react";
 import { TYPE_META, type ResourceDTO, type ResourceType } from "@/lib/constants";
 import { useI18n } from "@/components/providers";
@@ -20,9 +20,11 @@ export function subjectName(r: ResourceDTO, locale: string) {
 export function ResourceCard({
   resource,
   onWatch,
+  onAnnotate,
 }: {
   resource: ResourceDTO;
   onWatch?: (r: ResourceDTO) => void;
+  onAnnotate?: (r: ResourceDTO) => void;
 }) {
   const { t, locale, fmt } = useI18n();
   const [busy, setBusy] = useState(false);
@@ -39,20 +41,27 @@ export function ResourceCard({
 
   const doView = async () => {
     if (busy) return;
+    setCounts((c) => ({ ...c, views: c.views + 1 }));
+    fetch(`/api/resources/${resource.id}/view`, { method: "POST" }).catch(() => {});
+
     if (isVideo) {
-      setCounts((c) => ({ ...c, views: c.views + 1 }));
-      fetch(`/api/resources/${resource.id}/view`, { method: "POST" }).catch(() => {});
       onWatch?.(resource);
       return;
     }
-    if (!resource.fileUrl) return;
-    setBusy(true);
-    try {
-      setCounts((c) => ({ ...c, views: c.views + 1 }));
-      fetch(`/api/resources/${resource.id}/view`, { method: "POST" }).catch(() => {});
-      window.open(resource.fileUrl, "_blank", "noopener");
-    } finally {
-      setBusy(false);
+
+    if (onAnnotate) {
+      onAnnotate(resource);
+      return;
+    }
+
+    // Direct in-browser viewing fallback
+    if (resource.fileUrl) {
+      const a = document.createElement("a");
+      a.href = resource.fileUrl;
+      a.download = `${resource.subjectSlug}-${resource.type}-${resource.id}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
   };
 
@@ -60,35 +69,33 @@ export function ResourceCard({
     if (busy || !resource.fileUrl) return;
     setBusy(true);
     try {
-      const res = await fetch(`/api/resources/${resource.id}/download`, {
+      setCounts((c) => ({ ...c, downloads: c.downloads + 1 }));
+      fetch(`/api/resources/${resource.id}/download`, {
         method: "POST",
-      });
-      const data = (await res.json()) as { fileUrl?: string | null; downloads?: number };
-      if (typeof data.downloads === "number") {
-        setCounts((c) => ({ ...c, downloads: data.downloads! }));
-      }
-      const url = data.fileUrl ?? resource.fileUrl;
+      }).catch(() => {});
+
+      const url = resource.fileUrl.includes("?") ? resource.fileUrl : `${resource.fileUrl}?dl=1`;
       const a = document.createElement("a");
-      a.href = url.includes("?") ? url : `${url}?dl=1`;
-      a.download = url.split("/").pop() ?? "document.pdf";
+      a.href = url;
+      a.download = `${resource.subjectSlug}-${resource.type}-${resource.id}.pdf`;
       document.body.appendChild(a);
       a.click();
       a.remove();
-    } catch {
-      window.open(resource.fileUrl, "_blank", "noopener");
+    } catch (e) {
+      console.warn("download error", e);
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <article className="card-hover group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-panel">
+    <article className="card-hover group relative flex h-full flex-col overflow-hidden rounded-3xl border border-line bg-panel transition-all">
       {/* Visual header */}
       {isVideo ? (
         <button
           type="button"
           onClick={doView}
-          className="relative block aspect-[16/10] w-full overflow-hidden bg-black text-start"
+          className="relative block aspect-[16/10] w-full overflow-hidden bg-black text-start cursor-pointer"
           aria-label={t("common.watch")}
         >
           {resource.thumbnailUrl && (
@@ -109,9 +116,12 @@ export function ResourceCard({
           </span>
         </button>
       ) : (
-        <div
-          className="relative flex h-32 items-center justify-center overflow-hidden"
+        <button
+          type="button"
+          onClick={doView}
+          className="relative flex h-32 w-full items-center justify-center overflow-hidden text-start cursor-pointer"
           style={{ background: meta.gradient }}
+          title="Cliquer pour consulter et annoter ce cours en ligne"
         >
           <TypeIcon className="absolute -end-4 -top-6 h-32 w-32 rotate-12 text-white/15 transition-transform duration-500 group-hover:rotate-6 group-hover:scale-110" />
           <FileText className="h-12 w-12 text-white/90 transition-transform duration-500 group-hover:-translate-y-1 group-hover:scale-105" strokeWidth={1.5} />
@@ -121,7 +131,7 @@ export function ResourceCard({
           <span className="absolute end-4 bottom-3 text-[11px] font-semibold text-white/85">
             {resource.pages} {t("common.pages")} · {resource.sizeMb}
           </span>
-        </div>
+        </button>
       )}
 
       {/* Body */}
@@ -141,9 +151,13 @@ export function ResourceCard({
           </span>
         </div>
 
-        <h3 className="clamp-2 font-display mt-3 text-[15px] font-bold leading-snug text-ink">
+        <button
+          type="button"
+          onClick={doView}
+          className="text-left font-display mt-3 text-[15px] font-bold leading-snug text-ink transition-colors group-hover:text-accent hover:underline"
+        >
           {title}
-        </h3>
+        </button>
         {resource.teacherName && (
           <p className="mt-1.5 text-xs text-soft">{resource.teacherName}</p>
         )}
@@ -174,6 +188,16 @@ export function ResourceCard({
               </button>
             ) : (
               <>
+                <button
+                  type="button"
+                  onClick={() => onAnnotate ? onAnnotate(resource) : doView()}
+                  className="flex h-9 items-center gap-1.5 rounded-full border border-line bg-panel px-3 text-xs font-semibold text-soft transition-colors hover:border-accent hover:text-accent"
+                  aria-label="Annoter en ligne"
+                  title="Ouvrir dans la visionneuse avec outils d'annotation"
+                >
+                  <Highlighter className="h-3.5 w-3.5 text-accent" />
+                  <span className="hidden sm:inline">Annoter</span>
+                </button>
                 <button
                   type="button"
                   onClick={doView}

@@ -3,13 +3,16 @@
 import {
   ArrowRight,
   Award,
+  BookOpen,
   CheckCircle2,
   FileCheck2,
+  Flame,
   GraduationCap,
   HelpCircle,
   Lightbulb,
   Radio,
   Sparkles,
+  Timer,
   Trophy,
   Users,
   Video,
@@ -28,146 +31,145 @@ export function InteractiveFeaturesSection() {
           <div className="mx-auto max-w-3xl text-center space-y-3">
             <span className="inline-flex items-center gap-2 rounded-full border border-teal/20 bg-teal/10 px-3.5 py-1 text-xs font-bold text-teal">
               <Sparkles className="h-3.5 w-3.5" />
-              Nouveautés Interactives
+              Écosystème Éducatif Complet
             </span>
             <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl text-ink">
               Plus qu’une Bibliothèque : Une Vraie Salle de Classe en Ligne
             </h2>
             <p className="text-base text-soft">
-              Apprenez activement grâce à nos modules de correction automatisée et participez à des cours en visioconférence animés par des enseignants chevronnés.
+              Apprenez activement grâce aux exercices interactifs, révisez en groupe dans les salons virtuels et suivez votre vélocité d'apprentissage au quotidien.
             </p>
           </div>
         </Reveal>
 
-        <div className="mt-16 grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Feature 1: Correction en Ligne */}
-          <Reveal delay={0.1}>
-            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-line bg-panel p-8 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-xl hover:shadow-accent/5 sm:p-10">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-accent/15 text-accent shadow-inner">
-                    <FileCheck2 className="h-7 w-7" />
-                  </div>
-                  <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-bold text-accent">
-                    Auto-Évaluation Gratuite
-                  </span>
+          <Reveal delay={0.05}>
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-line bg-panel p-6 shadow-sm transition-all duration-300 hover:border-accent/40 hover:shadow-xl sm:p-7">
+              <div className="space-y-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-accent/15 text-accent shadow-inner">
+                  <FileCheck2 className="h-6 w-6" />
                 </div>
-
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-ink">
-                    Correction des Exercices en Ligne
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    Exercices Corrigés en Ligne
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-soft">
-                    Testez vos connaissances en temps réel avec nos séries d’exercices interactifs couvrant tous les cycles (Primaire, Moyen, Lycée).
+                  <p className="mt-1.5 text-xs text-soft leading-relaxed">
+                    Auto-évaluation immédiate avec corrigés détaillés étape par étape et indices progressifs.
                   </p>
                 </div>
-
-                {/* Micro demo visual */}
-                <div className="space-y-2 rounded-2xl border border-line bg-paper p-4 text-xs">
-                  <div className="flex items-center justify-between text-soft">
-                    <span className="font-semibold text-accent">Exemple interactif :</span>
-                    <span className="font-bold text-teal">+20 pts</span>
-                  </div>
-                  <p className="font-medium text-ink">
-                    « Soit (u_n) définie par u_0 = 4 et u_{"{n+1}"} = (1/2)u_n + 3. Calculer sa limite... »
-                  </p>
-                  <div className="flex items-center gap-2 rounded-xl bg-teal/15 p-2 text-teal font-semibold">
-                    <CheckCircle2 className="h-4 w-4 shrink-0" />
-                    <span>Corrigé type détaillé pas à pas & astuce du formateur révélés !</span>
-                  </div>
+                <div className="rounded-xl border border-line bg-paper p-3 text-[11px] text-soft">
+                  <span className="font-bold text-teal block">Astuces officielles du BAC/BEM</span>
+                  Feedback instantané à chaque étape.
                 </div>
-
-                <ul className="space-y-2 text-xs text-soft">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal" />
-                    Feedback immédiat avec explications des erreurs courantes
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal" />
-                    Indices progressifs pour vous aider à débloquer le raisonnement
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal" />
-                    Suivi des scores et points de réussite
-                  </li>
-                </ul>
               </div>
 
-              <div className="mt-8 border-t border-line/60 pt-6">
+              <div className="mt-6 border-t border-line/60 pt-4">
                 <Link
                   href="/exercices-en-ligne"
-                  className="inline-flex items-center gap-2 font-bold text-accent transition-colors hover:text-accent-strong"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-accent hover:text-accent-strong"
                 >
-                  <span>Démarrer un exercice interactif</span>
-                  <ArrowRight className={`h-4 w-4 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
+                  <span>S'entraîner maintenant</span>
+                  <ArrowRight className={`h-3.5 w-3.5 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
                 </Link>
               </div>
             </div>
           </Reveal>
 
           {/* Feature 2: Formations & Cours en Direct */}
-          <Reveal delay={0.2}>
-            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-line bg-panel p-8 shadow-sm transition-all duration-300 hover:border-teal/40 hover:shadow-xl hover:shadow-teal/5 sm:p-10">
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-teal/15 text-teal shadow-inner">
-                    <Radio className="h-7 w-7 animate-pulse" />
-                  </div>
-                  <span className="rounded-full bg-teal/10 px-3 py-1 text-xs font-bold text-teal">
-                    Visioconférence & Replays
-                  </span>
+          <Reveal delay={0.1}>
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-line bg-panel p-6 shadow-sm transition-all duration-300 hover:border-teal/40 hover:shadow-xl sm:p-7">
+              <div className="space-y-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-teal/15 text-teal shadow-inner">
+                  <Radio className="h-6 w-6 animate-pulse" />
                 </div>
-
                 <div>
-                  <h3 className="font-display text-2xl font-bold text-ink">
-                    Cours en Direct & Mise en Relation Formateurs
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    Cours en Visioconférence Directe
                   </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-soft">
-                    Rejoignez nos formateurs diplômés et inspecteurs pour des cours hebdomadaires en direct, des séances de questions-réponses et des révisions ciblées pour les examens.
+                  <p className="mt-1.5 text-xs text-soft leading-relaxed">
+                    Séances hebdomadaires avec formateurs certifiés, micro ouvert et replays illimités en HD.
                   </p>
                 </div>
-
-                {/* Micro demo visual */}
-                <div className="space-y-2 rounded-2xl border border-line bg-paper p-4 text-xs">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="h-2.5 w-2.5 rounded-full bg-rose animate-ping" />
-                      <span className="font-bold text-rose">Prochaine session en direct :</span>
-                    </div>
-                    <span className="text-[11px] font-semibold text-soft">Samedi 18:00</span>
-                  </div>
-                  <p className="font-bold text-ink">
-                    Stage Intensif BAC : Les Suites Numériques avec M. Benali
-                  </p>
-                  <div className="flex items-center justify-between text-[11px] text-soft">
-                    <span>Micro ouvert aux élèves · Tableau blanc partagé</span>
-                    <span className="font-bold text-accent">24 / 30 inscrits</span>
-                  </div>
+                <div className="rounded-xl border border-line bg-paper p-3 text-[11px] text-soft">
+                  <span className="font-bold text-rose-500 block">Stages intensifs BAC & BEM</span>
+                  Tableau blanc interactif & questions en direct.
                 </div>
-
-                <ul className="space-y-2 text-xs text-soft">
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal" />
-                    Plateforme interactive avec chat en direct et levée de main
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal" />
-                    Enregistrements HD disponibles en replay illimité
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <CheckCircle2 className="h-4 w-4 text-teal" />
-                    Fiches résumées et supports de cours téléchargeables
-                  </li>
-                </ul>
               </div>
 
-              <div className="mt-8 border-t border-line/60 pt-6">
+              <div className="mt-6 border-t border-line/60 pt-4">
                 <Link
                   href="/cours-en-ligne"
-                  className="inline-flex items-center gap-2 font-bold text-teal transition-colors hover:text-teal/80"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-teal hover:text-teal/80"
                 >
-                  <span>Consulter le planning des cours</span>
-                  <ArrowRight className={`h-4 w-4 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
+                  <span>Voir le planning live</span>
+                  <ArrowRight className={`h-3.5 w-3.5 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Feature 3: Espace d'Étude & Digital Notebook */}
+          <Reveal delay={0.15}>
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-line bg-panel p-6 shadow-sm transition-all duration-300 hover:border-indigo-500/40 hover:shadow-xl sm:p-7">
+              <div className="space-y-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-500/15 text-indigo-400 shadow-inner">
+                  <Users className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    Espace d'Étude & Cahier Partagé
+                  </h3>
+                  <p className="mt-1.5 text-xs text-soft leading-relaxed">
+                    Rédigez et exportez des fiches de cours collaboratives en groupe sur le Digital Notebook.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-line bg-paper p-3 text-[11px] text-soft">
+                  <span className="font-bold text-indigo-400 block">Salons d'entraide thématiques</span>
+                  Export PDF & Markdown en 1 clic.
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-line/60 pt-4">
+                <Link
+                  href="/espace-etude"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-indigo-400 hover:text-indigo-300"
+                >
+                  <span>Rejoindre un salon</span>
+                  <ArrowRight className={`h-3.5 w-3.5 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
+                </Link>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Feature 4: Profil, Vélocité & Classement */}
+          <Reveal delay={0.2}>
+            <div className="group relative flex h-full flex-col justify-between overflow-hidden rounded-3xl border border-line bg-panel p-6 shadow-sm transition-all duration-300 hover:border-amber-500/40 hover:shadow-xl sm:p-7">
+              <div className="space-y-4">
+                <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-amber-500/15 text-amber-500 shadow-inner">
+                  <Trophy className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="font-display text-lg font-bold text-ink">
+                    Tableau de Bord & Productivité
+                  </h3>
+                  <p className="mt-1.5 text-xs text-soft leading-relaxed">
+                    Série quotidienne (flamme), radar de compétences, compagnon d'étude et classement national.
+                  </p>
+                </div>
+                <div className="rounded-xl border border-line bg-paper p-3 text-[11px] text-soft">
+                  <span className="font-bold text-amber-500 block">Chrono Focus & Pomodoro</span>
+                  Vélocité d'apprentissage calculée chaque semaine.
+                </div>
+              </div>
+
+              <div className="mt-6 border-t border-line/60 pt-4">
+                <Link
+                  href="/profil"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-amber-500 hover:text-amber-400"
+                >
+                  <span>Mon tableau de bord</span>
+                  <ArrowRight className={`h-3.5 w-3.5 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
                 </Link>
               </div>
             </div>
@@ -175,7 +177,7 @@ export function InteractiveFeaturesSection() {
         </div>
 
         {/* Subscription banner preview */}
-        <Reveal delay={0.3}>
+        <Reveal delay={0.25}>
           <div className="mt-12 overflow-hidden rounded-3xl border border-line bg-gradient-to-r from-accent/10 via-panel to-panel-2 p-8 sm:p-10 shadow-sm flex flex-col justify-between gap-6 lg:flex-row lg:items-center">
             <div className="max-w-xl space-y-2">
               <span className="text-xs font-bold uppercase tracking-wider text-accent">

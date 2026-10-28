@@ -23,6 +23,8 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { CYCLES, type EducationalCycle, type InteractiveExercise } from "@/lib/constants";
 import { useI18n } from "@/components/providers";
+import { AskTeacherModal } from "@/components/teacher/ask-teacher-modal";
+import { CelebrationModal } from "@/components/celebration-modal";
 
 interface Props {
   initialExercises: InteractiveExercise[];
@@ -50,6 +52,8 @@ export function ExercisesClient({ initialExercises }: Props) {
   // User score & completed exercises
   const [score, setScore] = useState(0);
   const [completedIds, setCompletedIds] = useState<number[]>([]);
+
+  const [celebrationOpen, setCelebrationOpen] = useState(false);
 
   const filtered = exercises.filter((ex) => {
     if (selectedCycle !== "all" && ex.cycle !== selectedCycle) return false;
@@ -96,6 +100,7 @@ export function ExercisesClient({ initialExercises }: Props) {
           setCompletedIds((prev) => [...prev, activeExercise.id]);
           if (data.isCorrect) {
             setScore((prev) => prev + data.pointsEarned);
+            setCelebrationOpen(true);
           }
         }
       } catch (err) {
@@ -511,25 +516,41 @@ export function ExercisesClient({ initialExercises }: Props) {
                 )}
 
                 {/* Tutor connection CTA */}
-                <div className="flex items-center justify-between rounded-xl bg-gradient-to-r from-accent/15 via-teal/15 to-transparent p-4">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 rounded-xl bg-gradient-to-r from-accent/15 via-teal/15 to-transparent p-4">
                   <div>
                     <div className="text-xs font-bold text-ink">Vous bloquez sur une notion similaire ?</div>
                     <div className="text-[11px] text-soft">
-                      Posez votre question directement à nos enseignants en direct.
+                      Posez votre question directement à nos enseignants tuteurs.
                     </div>
                   </div>
-                  <Link
-                    href="/cours-en-ligne"
-                    className="rounded-full bg-accent px-4 py-1.5 text-xs font-bold text-accent-ink hover:scale-105"
-                  >
-                    Voir les cours en direct
-                  </Link>
+                  <div className="flex items-center gap-2">
+                    <AskTeacherModal
+                      contextReference={activeExercise ? `${activeExercise.title} (${activeExercise.gradeCode})` : "Exercice interactif"}
+                      defaultSubject={activeExercise.subjectName}
+                    />
+                    <Link
+                      href="/cours-en-ligne"
+                      className="rounded-full bg-accent px-4 py-2 text-xs font-bold text-accent-ink hover:scale-105 transition-transform"
+                    >
+                      Cours en direct
+                    </Link>
+                  </div>
                 </div>
               </div>
             )}
           </div>
         </div>
       )}
+
+      {/* Course & Exercise Completion Celebration Modal */}
+      <CelebrationModal
+        isOpen={celebrationOpen}
+        onClose={() => setCelebrationOpen(false)}
+        title="Exercice Réussi avec Succès !"
+        itemTitle={activeExercise?.title ?? "Exercice corrigé Massar"}
+        pointsEarned={result?.pointsEarned ?? 20}
+        streakCount={14}
+      />
     </div>
   );
 }

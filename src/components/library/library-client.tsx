@@ -8,6 +8,10 @@ import {
   SearchX,
   SlidersHorizontal,
   X,
+  Clock,
+  Sparkles,
+  BookMarked,
+  Highlighter,
 } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
@@ -24,6 +28,9 @@ import { ResourceCard, ResourceCardSkeleton } from "@/components/resource-card";
 import { VideoModal } from "@/components/video-modal";
 import { Reveal } from "@/components/reveal";
 import { useI18n } from "@/components/providers";
+import { PdfAnnotatorModal } from "@/components/pdf/pdf-annotator-modal";
+import { SmartDictionarySidebar } from "@/components/dictionary/smart-dictionary-sidebar";
+import { AskTeacherModal } from "@/components/teacher/ask-teacher-modal";
 import {
   RESOURCE_TYPES,
   TYPE_META,
@@ -59,8 +66,38 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [currentVideo, setCurrentVideo] = useState<ResourceDTO | null>(null);
+  const [annotatingDoc, setAnnotatingDoc] = useState<ResourceDTO | null>(null);
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchFocused, setSearchFocused] = useState(false);
   const firstRender = useRef(true);
+
+  // Load recent searches on mount
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("massar_recent_searches");
+      if (stored) setRecentSearches(JSON.parse(stored));
+    } catch {}
+  }, []);
+
+  const saveRecentSearch = (term: string) => {
+    if (!term.trim()) return;
+    setRecentSearches((prev) => {
+      const filtered = prev.filter((s) => s.toLowerCase() !== term.toLowerCase());
+      const updated = [term, ...filtered].slice(0, 5);
+      try {
+        localStorage.setItem("massar_recent_searches", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    try {
+      localStorage.removeItem("massar_recent_searches");
+    } catch {}
+  };
 
   const buildQuery = useCallback(
     (f: InitialFilters, p: number) => {
@@ -186,26 +223,123 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
 
   const filtersBody = (
     <div className="space-y-7">
-      {/* Search */}
-      <div>
+      {/* Search with Autocomplete & Recent Searches */}
+      <div className="relative">
         <p className="mb-2 text-xs font-bold uppercase tracking-widest text-soft">
           {t("common.search")}
         </p>
-        <div className="ring-line flex items-center gap-2 rounded-2xl bg-panel px-3.5">
+        <div className="ring-line flex items-center gap-2 rounded-2xl bg-panel px-3.5 focus-within:ring-2 focus-within:ring-accent">
           <Search className="h-4 w-4 shrink-0 text-soft" />
           <input
             type="text"
             value={qInput}
+            onFocus={() => setSearchFocused(true)}
             onChange={(e) => setQInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && qInput.trim()) {
+                saveRecentSearch(qInput.trim());
+                setSearchFocused(false);
+              }
+            }}
             placeholder={t("library.searchPlaceholder")}
             className="h-11 w-full bg-transparent text-sm font-medium text-ink placeholder:text-soft/70 focus:outline-none"
           />
           {qInput && (
-            <button type="button" onClick={() => setQInput("")} aria-label="Clear">
+            <button
+              type="button"
+              onClick={() => {
+                setQInput("");
+                update("q", "");
+              }}
+              aria-label="Clear"
+            >
               <X className="h-4 w-4 text-soft hover:text-ink" />
             </button>
           )}
         </div>
+
+        {/* Autocomplete & Recent Searches Dropdown */}
+        {searchFocused && (
+          <div
+            className="absolute left-0 right-0 top-full z-30 mt-2 overflow-hidden rounded-2xl border border-line bg-panel p-2 shadow-2xl"
+            onMouseDown={(e) => e.preventDefault()} // prevent input blur before click
+          >
+            {/* Recent Searches */}
+            {recentSearches.length > 0 && !qInput.trim() && (
+              <div>
+                <div className="flex items-center justify-between px-2.5 py-1 text-[11px] font-bold uppercase text-soft">
+                  <span className="flex items-center gap-1">
+                    <Clock className="h-3 w-3" />
+                    Recherches récentes
+                  </span>
+                  <button
+                    type="button"
+                    onClick={clearRecentSearches}
+                    className="hover:text-rose-400 font-medium normal-case"
+                  >
+                    Effacer
+                  </button>
+                </div>
+                <div className="mt-1 space-y-0.5">
+                  {recentSearches.map((term, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      onClick={() => {
+                        setQInput(term);
+                        saveRecentSearch(term);
+                        update("q", term);
+                        setSearchFocused(false);
+                      }}
+                      className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-start text-xs text-ink hover:bg-accent/10 hover:text-accent"
+                    >
+                      <Clock className="h-3 w-3 text-soft" />
+                      <span>{term}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Predictive suggestions when typing */}
+            {qInput.trim().length > 0 && (
+              <div>
+                <div className="px-2.5 py-1 text-[11px] font-bold uppercase text-soft">
+                  Suggestions prédictives
+                </div>
+                <div className="mt-1 space-y-0.5">
+                  {[
+                    "Suites arithmético-géométriques",
+                    "Théorème de Thalès et réciproque",
+                    "Circuit RC charge du condensateur",
+                    "Titrage acido-basique pH-métrique",
+                    "Synthèse des protéines & ARNm",
+                    "Examen officiel BAC 2024",
+                    "Épreuve officielle BEM",
+                  ]
+                    .filter((s) => s.toLowerCase().includes(qInput.toLowerCase()))
+                    .slice(0, 4)
+                    .map((sug, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        onClick={() => {
+                          setQInput(sug);
+                          saveRecentSearch(sug);
+                          update("q", sug);
+                          setSearchFocused(false);
+                        }}
+                        className="flex w-full items-center gap-2 rounded-xl px-2.5 py-1.5 text-start text-xs text-ink hover:bg-accent/10 hover:text-accent"
+                      >
+                        <Sparkles className="h-3 w-3 text-accent" />
+                        <span>{sug}</span>
+                      </button>
+                    ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Type */}
@@ -477,6 +611,23 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
                 Lycée (1AS - 3AS BAC)
               </button>
             </div>
+
+            {/* Smart tools bar in Library */}
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <SmartDictionarySidebar
+                triggerButton={{
+                  className: "inline-flex items-center gap-1.5 rounded-full border border-line bg-panel/80 px-4 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent shadow-sm backdrop-blur",
+                  label: "Dictionnaire & Notions Trilingue",
+                }}
+              />
+              <AskTeacherModal
+                contextReference="Bibliothèque générale Massar"
+                triggerButton={{
+                  className: "inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-4 py-2 text-xs font-semibold text-accent hover:bg-accent hover:text-accent-ink transition-colors",
+                  label: "Poser une question à un enseignant",
+                }}
+              />
+            </div>
           </Reveal>
         </div>
       </section>
@@ -546,7 +697,11 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ duration: 0.45, delay: (i % PAGE_SIZE) * 0.04, ease: [0.22, 1, 0.36, 1] }}
                     >
-                      <ResourceCard resource={resource} onWatch={setCurrentVideo} />
+                      <ResourceCard
+                        resource={resource}
+                        onWatch={setCurrentVideo}
+                        onAnnotate={setAnnotatingDoc}
+                      />
                     </motion.div>
                   ))}
             </div>
@@ -635,6 +790,30 @@ export function LibraryClient({ initial }: { initial: InitialFilters }) {
       </AnimatePresence>
 
       <VideoModal video={currentVideo} onClose={() => setCurrentVideo(null)} />
+
+      {annotatingDoc && (
+        <PdfAnnotatorModal
+          isOpen={true}
+          onClose={() => setAnnotatingDoc(null)}
+          documentId={annotatingDoc.id}
+          documentTitle={
+            locale === "ar"
+              ? annotatingDoc.titleAr
+              : locale === "en"
+              ? annotatingDoc.titleEn
+              : annotatingDoc.titleFr
+          }
+          documentSubject={
+            locale === "ar"
+              ? annotatingDoc.subjectNameAr
+              : locale === "en"
+              ? annotatingDoc.subjectNameEn
+              : annotatingDoc.subjectNameFr
+          }
+          pdfUrl={annotatingDoc.fileUrl}
+        />
+      )}
+
       <Footer />
     </main>
   );

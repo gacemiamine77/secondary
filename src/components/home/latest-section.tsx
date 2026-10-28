@@ -3,14 +3,16 @@
 import { useState } from "react";
 import { Reveal } from "@/components/reveal";
 import { SectionHeading } from "@/components/section-heading";
-import { ResourceCard } from "@/components/resource-card";
+import { ResourceCard, resourceTitle, subjectName } from "@/components/resource-card";
 import { VideoModal } from "@/components/video-modal";
+import { PdfAnnotatorModal } from "@/components/pdf/pdf-annotator-modal";
 import { useI18n } from "@/components/providers";
 import type { ResourceDTO } from "@/lib/constants";
 
 export function LatestSection({ resources }: { resources: ResourceDTO[] }) {
-  const { t } = useI18n();
-  const [current, setCurrent] = useState<ResourceDTO | null>(null);
+  const { t, locale } = useI18n();
+  const [currentVideo, setCurrentVideo] = useState<ResourceDTO | null>(null);
+  const [annotatingDoc, setAnnotatingDoc] = useState<ResourceDTO | null>(null);
 
   if (resources.length === 0) return null;
 
@@ -27,13 +29,29 @@ export function LatestSection({ resources }: { resources: ResourceDTO[] }) {
         <div className="mt-12 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {resources.map((resource, i) => (
             <Reveal key={resource.id} delay={(i % 3) * 0.07} className="h-full">
-              <ResourceCard resource={resource} onWatch={setCurrent} />
+              <ResourceCard
+                resource={resource}
+                onWatch={setCurrentVideo}
+                onAnnotate={setAnnotatingDoc}
+              />
             </Reveal>
           ))}
         </div>
       </div>
 
-      <VideoModal video={current} onClose={() => setCurrent(null)} />
+      <VideoModal video={currentVideo} onClose={() => setCurrentVideo(null)} />
+
+      {annotatingDoc && (
+        <PdfAnnotatorModal
+          isOpen={true}
+          documentId={annotatingDoc.id}
+          documentTitle={resourceTitle(annotatingDoc, locale)}
+          documentSubject={subjectName(annotatingDoc, locale)}
+          pdfUrl={annotatingDoc.fileUrl}
+          onClose={() => setAnnotatingDoc(null)}
+        />
+      )}
     </section>
   );
 }
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { GraduationCap, Menu, X, ArrowUpRight } from "lucide-react";
+import { GraduationCap, Menu, X, ArrowUpRight, Flame, User } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -12,8 +12,11 @@ import { ThemeToggle } from "@/components/theme-toggle";
 const LINKS = [
   { href: "/", key: "nav.home" },
   { href: "/bibliotheque", key: "nav.library" },
-  { href: "/exercices-en-ligne", key: "nav.exercises", badge: "En ligne" },
+  { href: "/exercices-en-ligne", key: "nav.exercises", badge: "Corrigés" },
   { href: "/cours-en-ligne", key: "nav.courses", badge: "Direct" },
+  { href: "/espace-etude", key: "nav.studyRoom", badge: "Collab" },
+  { href: "/classement", key: "nav.leaderboard" },
+  { href: "/parent", key: "nav.parents" },
   { href: "/tarifs", key: "nav.pricing" },
 ];
 
@@ -61,48 +64,60 @@ export function Navbar() {
             </span>
           </Link>
 
-          <nav className="hidden items-center gap-1 lg:flex">
+          <nav className="hidden items-center gap-1 xl:flex">
             {LINKS.map((link) => {
               const isActive =
                 link.href === "/"
                   ? pathname === "/"
                   : pathname.startsWith(link.href);
               return (
-                  <Link
-                    key={link.key}
-                    href={link.href}
-                    className={`relative inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors ${
-                      isActive
-                        ? "bg-accent/10 text-accent font-semibold"
-                        : "text-soft hover:bg-panel-2 hover:text-ink"
-                    }`}
-                  >
-                    {t(link.key)}
-                    {link.badge && (
-                      <span className="rounded-full bg-accent/15 px-1.5 py-0.2 text-[10px] font-bold text-accent">
-                        {link.badge}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
+                <Link
+                  key={link.key}
+                  href={link.href}
+                  className={`relative inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+                    isActive
+                      ? "bg-accent/10 text-accent font-bold"
+                      : "text-soft hover:bg-panel-2 hover:text-ink"
+                  }`}
+                >
+                  {t(link.key)}
+                  {link.badge && (
+                    <span className="rounded-full bg-accent/15 px-1.5 py-0.2 text-[9px] font-bold text-accent">
+                      {link.badge}
+                    </span>
+                  )}
+                </Link>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2">
-            <LangMenu compact />
+            <LangMenu />
             <ThemeToggle />
+
+            {/* Student Profile & Streak Chip */}
             <Link
-              href="/bibliotheque"
-              className="shine hidden h-10 items-center gap-1.5 rounded-full bg-accent px-5 text-sm font-semibold text-accent-ink shadow-lg shadow-accent/25 transition-transform hover:scale-[1.03] md:flex"
+              href="/profil"
+              className="group flex items-center gap-1.5 rounded-full border border-line bg-panel p-1 pr-2.5 text-xs font-semibold text-ink transition-colors hover:border-accent hover:text-accent shadow-sm"
+              title="Accéder à mon tableau de bord élève"
             >
-              {t("common.explore")}
-              <ArrowUpRight className={`h-4 w-4 ${dir === "rtl" ? "-scale-x-100" : ""}`} />
+              <img
+                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=120&h=120&q=80"
+                alt="Amina"
+                className="h-7 w-7 rounded-full border border-accent object-cover"
+              />
+              <span className="hidden sm:inline font-display text-xs font-bold">Amina</span>
+              <span className="flex items-center gap-0.5 text-amber-500 font-bold text-[11px]">
+                <Flame className="h-3 w-3 fill-amber-500" />
+                14j
+              </span>
             </Link>
+
             <button
               type="button"
               aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
               onClick={() => setOpen((v) => !v)}
-              className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-panel text-ink lg:hidden"
+              className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-panel text-ink xl:hidden"
             >
               {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
@@ -117,7 +132,7 @@ export function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-40 flex flex-col justify-center bg-paper/95 px-8 backdrop-blur-xl lg:hidden"
+            className="fixed inset-0 z-40 flex flex-col justify-center bg-paper/95 px-8 backdrop-blur-xl xl:hidden overflow-y-auto pt-20 pb-10"
           >
             <nav className="flex flex-col gap-2">
               {LINKS.map((link, i) => (
@@ -125,23 +140,39 @@ export function Navbar() {
                   key={link.key}
                   initial={{ opacity: 0, x: dir === "rtl" ? 32 : -32 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.06 * i, duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                  transition={{ delay: 0.05 * i, duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
                 >
                   <Link
                     href={link.href}
                     onClick={() => setOpen(false)}
-                    className="font-display block py-3 text-4xl font-bold tracking-tight text-ink transition-colors hover:text-accent"
+                    className="font-display block py-2 text-2xl font-bold tracking-tight text-ink transition-colors hover:text-accent"
                   >
                     {t(link.key)}
                   </Link>
                 </motion.div>
               ))}
+
+              <motion.div
+                initial={{ opacity: 0, x: dir === "rtl" ? 32 : -32 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.45 }}
+              >
+                <Link
+                  href="/profil"
+                  onClick={() => setOpen(false)}
+                  className="font-display flex items-center gap-2 py-2 text-2xl font-bold tracking-tight text-accent transition-colors"
+                >
+                  <Flame className="h-6 w-6 text-amber-500 fill-amber-500" />
+                  <span>{t("nav.profile")} (14j flamme)</span>
+                </Link>
+              </motion.div>
             </nav>
+
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.35 }}
-              className="mt-10 flex items-center gap-3"
+              transition={{ delay: 0.5 }}
+              className="mt-8 flex items-center gap-3 border-t border-line pt-6"
             >
               <LangMenu />
               <ThemeToggle />

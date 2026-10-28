@@ -3,6 +3,7 @@
 import {
   AlertCircle,
   ArrowRight,
+  BookOpen,
   Calendar,
   CheckCircle2,
   Clock,
@@ -25,6 +26,7 @@ import Link from "next/link";
 import { useState, useTransition } from "react";
 import { CYCLES, type EducationalCycle, type LiveCourse } from "@/lib/constants";
 import { useI18n } from "@/components/providers";
+import { PdfAnnotatorModal } from "@/components/pdf/pdf-annotator-modal";
 
 interface Props {
   initialCourses: LiveCourse[];
@@ -36,6 +38,7 @@ export function LiveCoursesClient({ initialCourses }: Props) {
   const [selectedCycle, setSelectedCycle] = useState<EducationalCycle | "all">("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
   const [searchQuery, setSearchQuery] = useState("");
+  const [viewCourseDoc, setViewCourseDoc] = useState<LiveCourse | null>(null);
 
   // Virtual room interactive modal
   const [activeRoomCourse, setActiveRoomCourse] = useState<LiveCourse | null>(null);
@@ -330,15 +333,27 @@ export function LiveCoursesClient({ initialCourses }: Props) {
                 </div>
 
                 {/* Bottom actions */}
-                <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-line/60 pt-4">
-                  <button
-                    type="button"
-                    onClick={() => setActiveRoomCourse(course)}
-                    className="inline-flex items-center gap-1.5 rounded-full bg-accent px-5 py-2.5 text-xs font-bold text-accent-ink shadow-md shadow-accent/25 transition-transform hover:scale-[1.03]"
-                  >
-                    <Video className="h-3.5 w-3.5" />
-                    Rejoindre la salle virtuelle
-                  </button>
+                <div className="mt-6 flex flex-wrap items-center justify-between gap-2.5 border-t border-line/60 pt-4">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setActiveRoomCourse(course)}
+                      className="inline-flex items-center gap-1.5 rounded-full bg-accent px-4 py-2 text-xs font-bold text-accent-ink shadow-md shadow-accent/25 transition-transform hover:scale-[1.03]"
+                    >
+                      <Video className="h-3.5 w-3.5" />
+                      Salle virtuelle
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setViewCourseDoc(course)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-line bg-panel px-3.5 py-2 text-xs font-semibold text-ink hover:border-accent hover:text-accent transition-colors"
+                      title="Consulter le support de cours officiel"
+                    >
+                      <BookOpen className="h-3.5 w-3.5 text-accent" />
+                      <span>Support de cours</span>
+                    </button>
+                  </div>
 
                   <button
                     type="button"
@@ -360,7 +375,7 @@ export function LiveCoursesClient({ initialCourses }: Props) {
                     ) : isFull ? (
                       "Complet"
                     ) : (
-                      "Réserver ma place"
+                      "Réserver"
                     )}
                   </button>
                 </div>
@@ -428,6 +443,7 @@ export function LiveCoursesClient({ initialCourses }: Props) {
                 <div className="relative flex-1">
                   <video
                     src="https://videos.pexels.com/video-files/6219854/6219854-uhd_4096_2160_30fps.mp4"
+                    controls
                     autoPlay
                     loop
                     muted
@@ -521,6 +537,17 @@ export function LiveCoursesClient({ initialCourses }: Props) {
             </div>
           </div>
         </div>
+      )}
+
+      {viewCourseDoc && (
+        <PdfAnnotatorModal
+          isOpen={true}
+          documentId={viewCourseDoc.id}
+          documentTitle={viewCourseDoc.title}
+          documentSubject={`${viewCourseDoc.subjectName} · ${viewCourseDoc.gradeCode}`}
+          pdfUrl={`/api/files/${viewCourseDoc.subjectSlug}-lycee-${viewCourseDoc.gradeCode.toLowerCase()}-t1-course-001.pdf`}
+          onClose={() => setViewCourseDoc(null)}
+        />
       )}
     </div>
   );
